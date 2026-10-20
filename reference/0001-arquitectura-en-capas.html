@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Referencia Rápida: Pila TCP/IP, Modelo OSI y Encapsulamiento</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    th {
+      background: #f4f6f8;
+      font-weight: 600;
+    }
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: var(--code-bg);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="lesson-tag">Referencia Rápida #0001</span>
+      <h1>Pila TCP/IP, Modelo OSI y Encapsulamiento</h1>
+      <p class="subtitle">Síntesis compacta de arquitectura en capas, unidades de datos y conmutación.</p>
+    </header>
+
+    <h2>1. Comparativa de Modelos y PDUs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Capa TCP/IP</th>
+          <th>Capa OSI</th>
+          <th>PDU (Unidad de Datos)</th>
+          <th>Dispositivos / Alcance</th>
+          <th>Protocolos de Ejemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="3"><strong>5. Aplicación</strong></td>
+          <td>7. Aplicación</td>
+          <td rowspan="3"><strong>Mensaje</strong></td>
+          <td rowspan="3">Hosts / Procesos de usuario</td>
+          <td rowspan="3"><span class="badge">HTTP</span>, <span class="badge">DNS</span>, <span class="badge">SSH</span>, <span class="badge">SMTP</span></td>
+        </tr>
+        <tr>
+          <td>6. Presentación</td>
+        </tr>
+        <tr>
+          <td>5. Sesión</td>
+        </tr>
+        <tr>
+          <td><strong>4. Transporte</strong></td>
+          <td>4. Transporte</td>
+          <td><strong>Segmento</strong> (TCP) / Datagrama (UDP)</td>
+          <td>Extremo a extremo (puertos)</td>
+          <td><span class="badge">TCP</span> (confiable), <span class="badge">UDP</span></td>
+        </tr>
+        <tr>
+          <td><strong>3. Red</strong></td>
+          <td>3. Red</td>
+          <td><strong>Datagrama</strong></td>
+          <td>Routers (conmutación capa 3)</td>
+          <td><span class="badge">IP</span>, <span class="badge">ICMP</span>, <span class="badge">OSPF</span>, <span class="badge">BGP</span></td>
+        </tr>
+        <tr>
+          <td><strong>2. Enlace</strong></td>
+          <td>2. Enlace de Datos</td>
+          <td><strong>Trama</strong> (Frame)</td>
+          <td>Switches de capa 2, placas NIC</td>
+          <td><span class="badge">Ethernet</span>, <span class="badge">Wi-Fi (802.11)</span>, <span class="badge">ARP</span></td>
+        </tr>
+        <tr>
+          <td><strong>1. Física</strong></td>
+          <td>1. Física</td>
+          <td><strong>Bits</strong></td>
+          <td>Cables, ondas de radio, hubs</td>
+          <td>Cobre (UTP Cat 6), Fibra óptica, RF</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. Flujo de Encapsulamiento y Desencapsulamiento</h2>
+    <div class="card">
+      <pre><code>[Emisor / Host Origen]
+  Aplicación : [ Datos / Mensaje (M) ]
+  Transporte : [ Encabezado Ht | M ]                         ==> Segmento
+  Red        : [ Encabezado Hn | Ht | M ]                    ==> Datagrama IP
+  Enlace     : [ Encabezado Hl | Hn | Ht | M | Cola/FCS ]    ==> Trama Ethernet
+  Física     : 011010010110111001100100...                   ==> Bits en el medio
+
+[En Tránsito]
+  Switch L2  : Desencapsula hasta Capa 2 (Trama: revisa MAC destino) y conmuta.
+  Router L3  : Desencapsula hasta Capa 3 (Datagrama: revisa IP destino) y enruta.
+
+[Receptor / Host Destino]
+  Desencapsula capa por capa hacia arriba hasta entregar el Mensaje puro al proceso.</code></pre>
+    </div>
+
+    <h2>3. Conmutación de Circuitos vs. Conmutación de Paquetes</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Característica</th>
+          <th>Conmutación de Circuitos</th>
+          <th>Conmutación de Paquetes (Internet)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Asignación de recursos</strong></td>
+          <td>Dedicada y reservada al inicio (<cite>call setup</cite>).</td>
+          <td>Bajo demanda, compartida estadísticamente.</td>
+        </tr>
+        <tr>
+          <td><strong>Técnicas de multiplexación</strong></td>
+          <td>FDM (Frecuencia) o TDM (Tiempo fijo).</td>
+          <td>Multiplexación estadística (sin ranuras fijas).</td>
+        </tr>
+        <tr>
+          <td><strong>Comportamiento en silencio</strong></td>
+          <td>Canal ocioso (<cite>idle</cite>), capacidad desaprovechada.</td>
+          <td>Capacidad total disponible para otros usuarios.</td>
+        </tr>
+        <tr>
+          <td><strong>Tratamiento en nodos</strong></td>
+          <td>Paso continuo a través de circuito cerrado.</td>
+          <td>Almacenamiento y reenvío (<cite>store-and-forward</cite>).</td>
+        </tr>
+        <tr>
+          <td><strong>Riesgo bajo congestión</strong></td>
+          <td>Bloqueo de llamadas (no se establece circuito).</td>
+          <td>Retardo en colas y posible pérdida de paquetes.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-nav">
+      <a href="../lessons/0001-fundamentos-y-arquitectura-en-capas.html">← Volver a la Lección #0001</a>
+      <a href="../README.md">Índice del Repositorio</a>
+    </div>
+  </div>
+</body>
+</html>

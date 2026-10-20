@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lección 0001: Fundamentos y Arquitectura en Capas</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .diagram-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .layer-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin: 1rem 0;
+    }
+    .layer-item {
+      padding: 0.6rem 1rem;
+      background: #e2e8f0;
+      border-left: 4px solid var(--accent-color);
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+    .layer-item span.pdu {
+      color: #0b5394;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+    .highlight-pill {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      color: #312e81;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="lesson-tag">Lección #0001</span>
+      <h1>Fundamentos y Arquitectura en Capas</h1>
+      <p class="subtitle">Comprendiendo cómo Internet transporta información desde las aplicaciones hasta los bits.</p>
+    </header>
+
+    <div class="card">
+      <strong>🎯 Conexión con tu Misión:</strong> Esta lección establece los cimientos para comprender el flujo de datos que luego diagnosticarás con comandos de red (`ping`, `netstat`) y configurarás en las topologías de laboratorio de Juan XXIII.
+    </div>
+
+    <h2>1. ¿Qué es Internet? Periferia vs. Núcleo</h2>
+    <p>
+      Internet puede dividirse funcionalmente en dos grandes áreas:
+    </p>
+    <ul>
+      <li>
+        <strong>La Periferia de la Red (<em>Edge</em>):</strong> Compuesta por los <strong>sistemas terminales o hosts</strong> (computadoras, servidores, teléfonos, dispositivos IoT) que ejecutan las aplicaciones de usuario (web, correo, streaming). Los hosts se comunican mediante modelos <em>Cliente/Servidor</em> o <em>Peer-to-Peer (P2P)</em>.
+      </li>
+      <li>
+        <strong>El Núcleo de la Red (<em>Core</em>):</strong> Una malla de routers y enlaces interconectados cuya única función es transportar los datos eficientemente entre los extremos.
+      </li>
+    </ul>
+
+    <h2>2. ¿Cómo viajan los datos? Conmutación de Paquetes</h2>
+    <p>
+      A diferencia de la vieja red telefónica (que reservaba un circuito exclusivo de extremo a extremo mediante <strong>conmutación de circuitos</strong> con FDM o TDM), Internet utiliza <strong>conmutación de paquetes</strong>:
+    </p>
+    <blockquote>
+      Los flujos de datos se dividen en fragmentos discretos llamados <strong>paquetes</strong>. Cada paquete comparte los enlaces a demanda mediante <strong>multiplexación estadística</strong> y es reenviado de nodo en nodo mediante el principio de <em>almacenamiento y reenvío (store-and-forward)</em>.
+    </blockquote>
+    <p>
+      <strong>¿La gran ventaja?</strong> Eficiencia extraordinaria para tráfico intermitente o en ráfagas. Si un host no transmite, no desperdicia recursos del enlace, permitiendo que decenas de usuarios compartan una misma capacidad.
+    </p>
+
+    <h2>3. La Pila de Protocolos TCP/IP y las PDUs</h2>
+    <p>
+      Para gobernar la comunicación entre fabricantes, sistemas operativos y aplicaciones heterogéneas, se utiliza una arquitectura estratificada en capas basada en el principio de <em>dividir para conquistar</em>.
+    </p>
+    <p>
+      Cada capa ofrece un servicio a la capa superior y consume los servicios de la capa inmediatamente inferior. En cada nivel, los datos se denominan con una <strong>Unidad de Datos de Protocolo (PDU)</strong> específica:
+    </p>
+
+    <div class="layer-stack">
+      <div class="layer-item">
+        <span>5. Capa de Aplicación (HTTP, DNS, SSH, SMTP)</span>
+        <span class="pdu">PDU: Mensaje</span>
+      </div>
+      <div class="layer-item">
+        <span>4. Capa de Transporte (TCP, UDP)</span>
+        <span class="pdu">PDU: Segmento</span>
+      </div>
+      <div class="layer-item">
+        <span>3. Capa de Red (IP, ICMP, Protocolos de Ruteo)</span>
+        <span class="pdu">PDU: Datagrama</span>
+      </div>
+      <div class="layer-item">
+        <span>2. Capa de Enlace (Ethernet, Wi-Fi 802.11)</span>
+        <span class="pdu">PDU: Trama (Frame)</span>
+      </div>
+      <div class="layer-item">
+        <span>1. Capa Física (Cobre UTP, Fibra óptica, Radio)</span>
+        <span class="pdu">PDU: Bits</span>
+      </div>
+    </div>
+
+    <p>
+      <em>Nota comparativa con el modelo OSI:</em> El modelo teórico OSI incluye 7 capas (añade <strong>Presentación</strong> y <strong>Sesión</strong> entre Transporte y Aplicación). En TCP/IP, cualquier necesidad de cifrado o gestión de sesión recae directamente sobre la aplicación.
+    </p>
+
+    <h2>4. El Proceso de Encapsulamiento</h2>
+    <p>
+      A medida que la información desciende desde la aplicación hasta el medio físico, cada capa le añade su propio encabezado (<cite>Header</cite>) con información de control:
+    </p>
+    <div class="diagram-box">
+      [Capa 5] Mensaje (M)<br>
+      &nbsp;&nbsp;↓<br>
+      [Capa 4] Encabezado Transporte (Ht) + [ Mensaje M ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Segmento<br>
+      &nbsp;&nbsp;↓<br>
+      [Capa 3] Encabezado Red (Hn) + [ Ht | M ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Datagrama IP<br>
+      &nbsp;&nbsp;↓<br>
+      [Capa 2] Encabezado Enlace (Hl) + [ Hn | Ht | M ] + Cola (FCS) → Trama Ethernet<br>
+      &nbsp;&nbsp;↓<br>
+      [Capa 1] Secuencia física de voltajes, pulsos de luz u ondas → Bits en el medio
+    </div>
+    <p>
+      <strong>Regla de oro de los dispositivos intermedios:</strong>
+      Un <strong>switch tradicional de Capa 2</strong> solo desencapsula hasta la Trama para leer la dirección MAC destino. Un <strong>router de Capa 3</strong> desencapsula hasta el Datagrama para examinar la dirección IP destino y tomar decisiones de reenvío.
+    </p>
+
+    <h2>5. Puesta a Prueba (Active Retrieval)</h2>
+    <p>Responde a estas preguntas de comprobación activa para consolidar lo aprendido en tu memoria de largo plazo:</p>
+
+    <div class="quiz-container" id="quiz1">
+      <p><strong>Pregunta 1:</strong> ¿Cómo se denomina técnicamente la unidad de información (PDU) que procesa e intercambia la Capa de Transporte?</p>
+      <button class="quiz-option" onclick="checkQ1(this, false)">Se denomina formalmente Datagrama</button>
+      <button class="quiz-option" onclick="checkQ1(this, true)">Se denomina formalmente Segmento</button>
+      <button class="quiz-option" onclick="checkQ1(this, false)">Se denomina formalmente Paquete</button>
+      <button class="quiz-option" onclick="checkQ1(this, false)">Se denomina formalmente Mensaje</button>
+      <div class="quiz-feedback" id="feedback1"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz2">
+      <p><strong>Pregunta 2:</strong> ¿Por qué la conmutación de paquetes es más eficiente que la conmutación de circuitos para el tráfico de Internet?</p>
+      <button class="quiz-option" onclick="checkQ2(this, false)">Garantiza canales exclusivos sin retardo</button>
+      <button class="quiz-option" onclick="checkQ2(this, false)">Elimina totalmente la necesidad de routers</button>
+      <button class="quiz-option" onclick="checkQ2(this, true)">Aprovecha enlaces mediante multiplexación</button>
+      <button class="quiz-option" onclick="checkQ2(this, false)">Reserva anchos de banda fijos por usuario</button>
+      <div class="quiz-feedback" id="feedback2"></div>
+    </div>
+
+    <h2>6. Fuentes Primarias Recomendadas</h2>
+    <ul>
+      <li>
+        <strong>Texto Oficial:</strong> <em>Computer Networking: A Top-Down Approach</em> (Kurose & Ross) — Capítulo 1, secciones 1.1 a 1.5.
+      </li>
+      <li>
+        <strong>Cátedra Juan XXIII:</strong> Diapositivas del Ing. Mariano Coccia — <code>Capitulo1.pdf</code> (diapositivas 1-5 a 1-70).
+      </li>
+      <li>
+        <strong>Material de referencia rápida:</strong> Consulta la <a href="../reference/0001-arquitectura-en-capas.html">Ficha de Referencia #0001</a> para repasar tablas de equivalencias y diagramas.
+      </li>
+    </ul>
+
+    <div class="card" style="border-left: 4px solid var(--accent-color);">
+      <strong>💡 Próximo paso:</strong> Cuando termines de revisar la lección y responder el cuestionario, avísame en el chat para registrar tu progreso en los <em>Learning Records</em> y definir el siguiente paso de estudio. ¡Si algo no quedó claro, puedes hacerme cualquier consulta!
+    </div>
+
+    <div class="footer-nav">
+      <span>Lección inicial (#0001)</span>
+      <a href="../reference/0001-arquitectura-en-capas.html">Ver Ficha de Referencia #0001 →</a>
+    </div>
+  </div>
+
+  <script>
+    function checkQ1(button, isCorrect) {
+      const fb = document.getElementById("feedback1");
+      const opts = document.querySelectorAll("#quiz1 .quiz-option");
+      opts.forEach(o => { o.style.pointerEvents = "none"; o.style.opacity = "0.7"; });
+      button.style.opacity = "1";
+      if (isCorrect) {
+        button.style.borderColor = "var(--success-color)";
+        button.style.backgroundColor = "#edf7ed";
+        fb.style.display = "block";
+        fb.style.background = "#edf7ed";
+        fb.style.color = "var(--success-color)";
+        fb.innerHTML = "¡Correcto! En la capa de transporte la PDU es el Segmento (o datagrama de usuario en UDP), formado al agregar el encabezado Ht al mensaje de aplicación.";
+      } else {
+        button.style.borderColor = "var(--danger-color)";
+        button.style.backgroundColor = "#fdecea";
+        fb.style.display = "block";
+        fb.style.background = "#fdecea";
+        fb.style.color = "var(--danger-color)";
+        fb.innerHTML = "Incorrecto. Recuerda: Aplicación = Mensaje, Transporte = Segmento, Red = Datagrama, Enlace = Trama.";
+      }
+    }
+
+    function checkQ2(button, isCorrect) {
+      const fb = document.getElementById("feedback2");
+      const opts = document.querySelectorAll("#quiz2 .quiz-option");
+      opts.forEach(o => { o.style.pointerEvents = "none"; o.style.opacity = "0.7"; });
+      button.style.opacity = "1";
+      if (isCorrect) {
+        button.style.borderColor = "var(--success-color)";
+        button.style.backgroundColor = "#edf7ed";
+        fb.style.display = "block";
+        fb.style.background = "#edf7ed";
+        fb.style.color = "var(--success-color)";
+        fb.innerHTML = "¡Exacto! La multiplexación estadística permite que los usuarios compartan la capacidad dinámicamente; si alguien no transmite, el ancho de banda queda disponible para otros.";
+      } else {
+        button.style.borderColor = "var(--danger-color)";
+        button.style.backgroundColor = "#fdecea";
+        fb.style.display = "block";
+        fb.style.background = "#fdecea";
+        fb.style.color = "var(--danger-color)";
+        fb.innerHTML = "Incorrecto. En conmutación de paquetes no se reservan canales exclusivos (eso es conmutación de circuitos). Los paquetes se envían bajo demanda.";
+      }
+    }
+  </script>
+</body>
+</html>
